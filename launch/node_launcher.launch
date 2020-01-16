@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="simple_sodom" type="simple_odom.py" name="sodom" output="screen"></node>
+</launch>
