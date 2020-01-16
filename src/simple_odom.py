@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 import rospy
-from std_msgs.msg import Bool
 from geometry_msgs.msg._Pose import Pose
-import numpy as np
 from nav_msgs.msg._OccupancyGrid import OccupancyGrid
 from nav_msgs.msg._Odometry import Odometry
-import math
 from tf import TransformListener
 
 class SimpleOdom(): 
@@ -16,11 +13,6 @@ class SimpleOdom():
 
         self.tf = TransformListener()
         self.map_resolution = 0
-        self.robot_x = 0
-        self.robot_x_pose = 0
-        self.robot_y = 0
-        self.robot_y_pose = 0
-        self.robot_pose_available = False
         self.new_pose = Pose()
 
         self.odomSub = rospy.Subscriber('/odom', Odometry, self._odom_callback)
