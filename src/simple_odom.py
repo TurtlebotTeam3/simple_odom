@@ -20,7 +20,7 @@ class SimpleOdom():
 
         #publisher pose
         self.pub_odom_pose = rospy.Publisher('simple_odom_pose', Pose, queue_size=10)
-
+        self.ready = False
         #rate
         self.rate = rospy.Rate(2)
         rospy.spin()
@@ -46,8 +46,18 @@ class SimpleOdom():
 
                 self.pub_odom_pose.publish(self.new_pose)
 
+                if not self.ready:
+                    print('---- ready ----')
+                    self.ready = True
+
             except:
+                if self.ready:
+                    self.ready = False
+
                 print('transform not ready')
+
+                
+
     
 
     def _map_callback(self, data):
