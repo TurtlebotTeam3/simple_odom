@@ -8,9 +8,11 @@ project(simple_odom)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  roscpp
   rospy
+  message_generation
   std_msgs
-  nav_msgs
+  geometry_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -71,7 +73,7 @@ add_message_files(
 generate_messages(
   DEPENDENCIES
   std_msgs
-  nav_msgs
+  geometry_msgs
 )
 
 ################################################

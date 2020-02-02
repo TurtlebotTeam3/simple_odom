@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 import rospy
 import tf
-
+import math
 from geometry_msgs.msg import Pose
-from nav_msgs.msg import OccupancyGrid
+from std_msgs.msg import Header
+from nav_msgs.msg import OccupancyGrid, MapMetaData
 from nav_msgs.msg import Odometry
 from simple_odom.msg import PoseConverted, CustomPose
 
@@ -13,10 +14,7 @@ class SimpleOdom():
         rospy.init_node('SimpleOdom')
         rospy.loginfo('SimpleOdom node started')
 
-        self.map_resolution = 0
-        self.map_offset_x = 0
-        self.map_offset_y = 0
-        self.map_resolution = 0
+        self.map_info = MapMetaData()
 
         self.tfl = tf.TransformListener()
 
@@ -30,6 +28,8 @@ class SimpleOdom():
 
         self._get_map_meta()
         
+        self.seq = 0
+
         #rate
         self.rate = rospy.Rate(2)
         rospy.spin()
@@ -39,50 +39,49 @@ class SimpleOdom():
         """
         Process information publised to the odom topic.
         """
-        if self.map_resolution > 0:
-            try:
-                t = self.tfl.getLatestCommonTime("map", "base_footprint")
-                position, quaternion = self.tfl.lookupTransform("map", "base_footprint", t)
+        try:
+            t = self.tfl.getLatestCommonTime("map", "base_footprint")
+            position, quaternion = self.tfl.lookupTransform("map", "base_footprint", t)
 
-                # store the pose
-                pose = Pose()
-                pose.position.x = position[0]
-                pose.position.y = position[1]
-                pose.position.z = position[2]
-                pose.orientation.x = quaternion[0]
-                pose.orientation.y = quaternion[1]
-                pose.orientation.z = quaternion[2]
-                pose.orientation.w = quaternion[3]
+            # store the pose
+            pose = Pose()
+            pose.position.x = position[0]
+            pose.position.y = position[1]
+            pose.position.z = position[2]
+            pose.orientation.x = quaternion[0]
+            pose.orientation.y = quaternion[1]
+            pose.orientation.z = quaternion[2]
+            pose.orientation.w = quaternion[3]
 
-                # calculate pose as map coordinates (row, col)
-                pose_converted = PoseConverted()
-                pose_converted.x = int(math.floor((pose.position.x - self.map_offset_x)/self.map_resolution))
-                pose_converted.y = int(math.floor((pose.position.y - self.map_offset_y)/self.map_resolution))
-                pose_converted.yaw = self._robot_angle(pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w)
+            # calculate pose as map coordinates (row, col)
+            pose_converted = PoseConverted()
+            pose_converted.x = int(math.floor((pose.position.x - self.map_info.origin.position.x)/self.map_info.resolution))
+            pose_converted.y = int(math.floor((pose.position.y - self.map_info.origin.position.y)/self.map_info.resolution))
+            pose_converted.yaw = self._robot_angle(pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w)
 
-                customPose = CustomPose()
-                customPose.pose = pose
-                customPose.pose_converted = pose_converted
+            customPose = CustomPose()
+            customPose.header.seq = self.seq
+            customPose.header.stamp = rospy.Time.now()
+            customPose.pose = pose
+            customPose.pose_converted = pose_converted
 
-                self.pub_odom_pose.publish(customPose)
+            self.pub_odom_pose.publish(customPose)
 
-                if not self.ready:
-                    print('---- ready ----')
-                    self.ready = True
+            if not self.ready:
+                print('---- ready ----')
+                self.ready = True
 
-            except:
-                if self.ready:
-                    self.ready = False
-                print('transform not ready')
+        except tf.Exception:
+            if self.ready:
+                self.ready = False
+            print('transform not ready')
 
     def _get_map_meta(self):
         """
         Get resulution and the offsets
         """
         map = rospy.wait_for_message('/map', OccupancyGrid)
-        self.map_resolution = map.info.resolution
-        self.map_offset_x = map.info.origin.position.x
-        self.map_offset_y = map.info.origin.position.y
+        self.map_info = map.info
 
     def _robot_angle(self, x, y, z, w):
         """
@@ -96,6 +95,9 @@ class SimpleOdom():
         return yaw
 
 if __name__ == '__main__':
-	SimpleOdom()
+	try:
+        SimpleOdom()
+    except:
+		pass
 
 

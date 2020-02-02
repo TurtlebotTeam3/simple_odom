@@ -1,2 +1,3 @@
-nav_msgs/Odometry pose
+std_msgs/Header header
+geometry_msgs/Pose pose
 PoseConverted pose_converted
