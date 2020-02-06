@@ -24,7 +24,7 @@ class SimpleOdom():
         self.pub_odom_pose = rospy.Publisher('simple_odom_pose', CustomPose, queue_size=10)
 
         # --- Subscribers ---
-        self.odomSub = rospy.Subscriber('/odom', Odometry, self._handle_odom)
+        self.odomSub = rospy.Subscriber('odom', Odometry, self._handle_odom)
 
         self._get_map_meta()
         
@@ -80,7 +80,7 @@ class SimpleOdom():
         """
         Get resulution and the offsets
         """
-        map = rospy.wait_for_message('/map', OccupancyGrid)
+        map = rospy.wait_for_message('map', OccupancyGrid)
         self.map_info = map.info
 
     def _robot_angle(self, x, y, z, w):
