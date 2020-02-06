@@ -95,9 +95,7 @@ class SimpleOdom():
         return yaw
 
 if __name__ == '__main__':
-	try:
+    try:
         SimpleOdom()
     except:
-		pass
-
-
+        pass
