@@ -40,8 +40,8 @@ class SimpleOdom():
         Process information publised to the odom topic.
         """
         try:
-            t = self.tfl.getLatestCommonTime("map", "base_footprint")
-            position, quaternion = self.tfl.lookupTransform("map", "base_footprint", t)
+            t = self.tfl.getLatestCommonTime("Turtle4711/map", "Turtle4711/base_footprint")
+            position, quaternion = self.tfl.lookupTransform("Turtle4711/map", "Turtle4711/base_footprint", t)
 
             # store the pose
             pose = Pose()
