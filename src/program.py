@@ -68,13 +68,13 @@ class SimpleOdom():
             self.pub_odom_pose.publish(customPose)
 
             if not self.ready:
-                print('---- ready ----')
+                rospy.loginfo('ready')
                 self.ready = True
 
         except tf.Exception:
             if self.ready:
                 self.ready = False
-            print('transform not ready')
+            rospy.loginfo('transform not ready')
 
     def _get_map_meta(self):
         """

@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="simple_odom" type="program.py" name="simple_odom" output="screen"></node>
+</launch>
